@@ -1,24 +1,24 @@
-const { isEmpty } = require("lodash");
-const { getExpression } = require("./parseMcCluskey");
+const { isEmpty } = require('lodash')
+const { getExpression } = require('./parseMcCluskey')
 /**
  * @class Minterm
  * @param {Array} minterm
  */
 class Minterm {
   constructor(minterm, { position, group, m } = {}) {
-    this.bits = minterm;
-    this.group = group;
-    this.m = m ?? [this.#getPosition()];
+    this.bits = minterm
+    this.group = group
+    this.m = m ?? [this.#getPosition()]
   }
   #getPosition() {
-    const numDEC = this.bits.join("");
-    return parseInt(numDEC, 2);
+    const numDEC = this.bits.join('')
+    return parseInt(numDEC, 2)
   }
   /**
    * @param {Number} pos
    */
   changeBit(pos) {
-    this.bits[pos] = "-";
+    this.bits[pos] = '-'
   }
 }
 /**
@@ -27,28 +27,27 @@ class Minterm {
  * @returns  {Number} count
  */
 const countOnes = (bits) => {
-  let count = 0;
+  let count = 0
   bits.forEach((bit) => {
-    if (bit === 1) count++;
-  });
-  return count;
-};
+    if (bit === 1) count++
+  })
+  return count
+}
 /**
  *
  * @param {Array} table
  */
 function agroupByOnes(table) {
-  const groups = {};
+  const groups = {}
   table.forEach((minterm) => {
-    const count = countOnes(minterm.bits);
-    if (count === 0) return;
+    const count = countOnes(minterm.bits)
     if (!groups[count]) {
-      groups[count] = [];
+      groups[count] = []
     }
-    groups[count].push(minterm);
-    minterm.group = count;
-  });
-  return groups;
+    groups[count].push(minterm)
+    minterm.group = count
+  })
+  return groups
 }
 /**
  *
@@ -57,15 +56,15 @@ function agroupByOnes(table) {
  * @return {Number} position
  */
 function getBitChange(arr1, arr2) {
-  let position = -1;
-  let count = 0;
+  let position = -1
+  let count = 0
   for (let i = 0; i < arr1.length; i++) {
     if (arr1[i] !== arr2[i]) {
-      position = i;
-      count++;
+      position = i
+      count++
     }
   }
-  return count > 1 ? -1 : position;
+  return count > 1 ? -1 : position
 }
 /**
  *
@@ -74,8 +73,8 @@ function getBitChange(arr1, arr2) {
  */
 function checkIfIsCopy(minterms, newMinterm) {
   return minterms.some((m) => {
-    return JSON.stringify(newMinterm.bits) === JSON.stringify(m.bits);
-  });
+    return JSON.stringify(newMinterm.bits) === JSON.stringify(m.bits)
+  })
 }
 
 /**
@@ -85,23 +84,23 @@ function checkIfIsCopy(minterms, newMinterm) {
  * @returns {Object} minterms
  */
 function reduceTable(arr1, arr2) {
-  const minterms = {};
+  const minterms = {}
   arr1.forEach((minterm) => {
     arr2.forEach((minterm2) => {
-      const position = getBitChange(minterm.bits, minterm2.bits);
-      if (position === -1) return;
+      const position = getBitChange(minterm.bits, minterm2.bits)
+      if (position === -1) return
       const newMinterm = new Minterm([...minterm.bits], {
-        m: [...minterm.m, ...minterm2.m],
-      });
-      newMinterm.changeBit(position);
-      newMinterm.group = countOnes(newMinterm.bits);
-      if (!minterms[newMinterm.group]) minterms[newMinterm.group] = [];
-      const isCopy = checkIfIsCopy(minterms[newMinterm.group], newMinterm);
-      if (isCopy) return;
-      minterms[newMinterm.group].push(newMinterm);
-    });
-  });
-  return minterms;
+        m: [...minterm.m, ...minterm2.m]
+      })
+      newMinterm.changeBit(position)
+      newMinterm.group = countOnes(newMinterm.bits)
+      if (!minterms[newMinterm.group]) minterms[newMinterm.group] = []
+      const isCopy = checkIfIsCopy(minterms[newMinterm.group], newMinterm)
+      if (isCopy) return
+      minterms[newMinterm.group].push(newMinterm)
+    })
+  })
+  return minterms
 }
 /**
  *
@@ -112,11 +111,11 @@ function reduceTable(arr1, arr2) {
 function reduceArrayTable(table) {
   return table.reduce((acc, curr) => {
     Object.keys(curr).forEach((key) => {
-      if (!acc.hasOwnProperty(key)) acc[key] = [];
-      acc[key].push(...curr[key]);
-    });
-    return acc;
-  }, {});
+      if (!acc.hasOwnProperty(key)) acc[key] = []
+      acc[key].push(...curr[key])
+    })
+    return acc
+  }, {})
 }
 
 /**
@@ -124,21 +123,21 @@ function reduceArrayTable(table) {
  * return {Object} newTable
  */
 function agroupByBitChange(table) {
-  let newTable = [];
+  let newTable = []
   const groups = Object.keys(table)
     .sort((a, b) => a - b)
-    .map(Number); // sort groups by ascending order
+    .map(Number) // sort groups by ascending order
   for (let i = 0; i < groups.length; i++) {
-    const groupOne = groups.at(i);
-    const groupTwo = groups.at(i + 1);
-    if (!groupTwo || groupTwo - groupOne !== 1) break;
-    const mutations = reduceTable(table[groupOne], table[groupTwo]);
-    if (isEmpty(mutations)) break;
-    newTable.push(mutations);
+    const groupOne = groups.at(i)
+    const groupTwo = groups.at(i + 1)
+    if (!groupTwo || groupTwo - groupOne !== 1) break
+    const mutations = reduceTable(table[groupOne], table[groupTwo])
+    if (isEmpty(mutations)) break
+    newTable.push(mutations)
   }
-  if (isEmpty(newTable)) return table;
-  newTable = reduceArrayTable(newTable);
-  return agroupByBitChange(newTable);
+  if (isEmpty(newTable)) return table
+  newTable = reduceArrayTable(newTable)
+  return agroupByBitChange(newTable)
 }
 /**
  *
@@ -148,8 +147,8 @@ function agroupByBitChange(table) {
  */
 function getTermByPosition(table, positions) {
   return positions.map((position) => {
-    return table.find((m) => m.m.includes(parseInt(position)));
-  });
+    return table.find((m) => m.m.includes(parseInt(position)))
+  })
 }
 
 /**
@@ -157,17 +156,17 @@ function getTermByPosition(table, positions) {
  * @param {Array} table
  */
 function getMinSum(table) {
-  const terms = {};
+  const terms = {}
   table.forEach((minterm) => {
     minterm.m.forEach((m) => {
-      if (!terms[m]) terms[m] = 0;
-      terms[m]++;
-    });
-  });
+      if (!terms[m]) terms[m] = 0
+      terms[m]++
+    })
+  })
   const uniques = Object.keys(terms).filter((k) => {
-    return terms[k] === 1;
-  });
-  return getTermByPosition(table, uniques);
+    return terms[k] === 1
+  })
+  return getTermByPosition(table, uniques)
 }
 
 /**
@@ -175,8 +174,8 @@ function getMinSum(table) {
  * @param {Array} table
  */
 function getFinalFunction(table) {
-  const bits = table.map((minterm) => minterm.bits);
-  return bits.map((x) => getExpression(x)).join("+");
+  const bits = table.map((minterm) => minterm.bits)
+  return bits.map((x) => getExpression(x)).join('+')
 }
 
 /**
@@ -184,23 +183,11 @@ function getFinalFunction(table) {
  * @param {Array} minterms
  */
 function main(minterms) {
-  const mainTable = minterms.map((minterm) => new Minterm(minterm));
-  const groups = agroupByOnes(mainTable);
-  const newTable = agroupByBitChange(groups);
-  const minSum = getMinSum(Object.values(newTable).flat(100));
-  const finalFunction = getFinalFunction(minSum);
-  return finalFunction;
+  const mainTable = minterms.map((minterm) => new Minterm(minterm))
+  const groups = agroupByOnes(mainTable)
+  const newTable = agroupByBitChange(groups)
+  const minSum = getMinSum(Object.values(newTable).flat(100))
+  const finalFunction = getFinalFunction(minSum)
+  return finalFunction
 }
-const test = [
-  [0, 0, 0, 1],
-  [0, 0, 1, 1],
-  [0, 1, 0, 0],
-  [0, 1, 0, 1],
-  [1, 0, 0, 1],
-  [1, 0, 1, 1],
-  [1, 1, 0, 0],
-  [1, 1, 0, 1],
-  [1, 1, 1, 0],
-  [1, 1, 1, 1],
-];
-console.log(main(test));
+module.exports = main

@@ -4,19 +4,19 @@
  * @returns
  */
 function getExpression(expression) {
-  let asciiChar = 65;
+  let asciiChar = 65
   const newExpression = expression.map((bit) => {
-    if (bit === "-") {
-      asciiChar++;
-      return;
+    if (bit === '-') {
+      asciiChar++
+      return
     }
-    const char = String.fromCharCode(asciiChar);
-    asciiChar++;
-    return bit ? char : `~${char}`;
-  });
-  return newExpression.join("");
+    const char = String.fromCharCode(asciiChar)
+    asciiChar++
+    return bit ? char : `~${char}`
+  })
+  return newExpression.join('')
 }
 
 module.exports = {
-  getExpression,
-};
+  getExpression
+}

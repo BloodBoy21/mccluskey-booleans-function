@@ -1,9 +1,12 @@
 {
-  "name": "proyecto",
-  "version": "0.0.0",
+  "name": "mccluskey_algorithm",
+  "version": "1.0.0",
   "private": true,
+  "prettier": "prettier-config-standard",
   "scripts": {
-    "start": "node ./utils/parseInput.js"
+    "start": "node ./bin/www",
+    "start:dev": "nodemon ./bin/www",
+    "eslint:fix": "eslint --fix ."
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -12,6 +15,16 @@
     "http-errors": "~1.6.3",
     "lodash": "^4.17.21",
     "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11"
+    "pug": "2.0.0-beta11",
+    "redis": "^4.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "nodemon": "^2.0.15",
+    "prettier-config-standard": "^5.0.0"
   }
 }
