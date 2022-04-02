@@ -175,7 +175,8 @@ function getMinSum(table) {
  */
 function getFinalFunction(table) {
   const bits = table.map((minterm) => minterm.bits)
-  return bits.map((x) => getExpression(x)).join('+')
+  const functions = new Set(bits.map((x) => getExpression(x)))
+  return Array.from(functions).join(' + ')
 }
 
 /**
